@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JYH HOGAR - E-Commerce Muebles & Dormitorio de Lujo</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            amber: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React, ReactDOM y Babel Standalone CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500 selection:text-black antialiased">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // SVG Icon components for standalone browser execution
+    const Icon = ({ path, className = "w-5 h-5", fill = "none" }) => (
+      <svg className={className} fill={fill} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {path}
+      </svg>
+    );
+
+    const ShoppingBag = (props) => <Icon {...props} path={<><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></>} />;
+    const Heart = (props) => <Icon {...props} path={<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>} />;
+    const Search = (props) => <Icon {...props} path={<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>} />;
+    const User = (props) => <Icon {...props} path={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />;
+    const Menu = (props) => <Icon {...props} path={<><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></>} />;
+    const X = (props) => <Icon {...props} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
+    const ChevronRight = (props) => <Icon {...props} path={<polyline points="9 18 15 12 9 6"/>} />;
+    const Star = (props) => <Icon {...props} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />;
+    const ShieldCheck = (props) => <Icon {...props} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></>} />;
+    const Truck = (props) => <Icon {...props} path={<><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></>} />;
+    const Clock = (props) => <Icon {...props} path={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />;
+    const Trash2 = (props) => <Icon {...props} path={<><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></>} />;
+    const Plus = (props) => <Icon {...props} path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />;
+    const Minus = (props) => <Icon {...props} path={<line x1="5" y1="12" x2="19" y2="12"/>} />;
+    const Award = (props) => <Icon {...props} path={<><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></>} />;
+    const Sparkles = (props) => <Icon {...props} path={<path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>} />;
+    const MessageCircle = (props) => <Icon {...props} path={<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>} />;
+    const ArrowRight = (props) => <Icon {...props} path={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
+    const SlidersHorizontal = (props) => <Icon {...props} path={<><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></>} />;
+    const HomeIcon = (props) => <Icon {...props} path={<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />;
+    const PhoneCall = (props) => <Icon {...props} path={<path d="M150.9 22.8c-1.8 0-3.3 1.5-3.3 3.3v10c0 1.8 1.5 3.3 3.3 3.3 1.8 0 3.3-1.5 3.3-3.3v-10c0-1.8-1.5-3.3-3.3-3.3z"/>} />;
+    const Filter = (props) => <Icon {...props} path={<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>} />;
+    const Grid = (props) => <Icon {...props} path={<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>} />;
+    const List = (props) => <Icon {...props} path={<><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></>} />;
+
+    const PRODUCTS_DATA = [
+      {
+        id: 1,
+        name: "Cabecera Moderna Oslo",
+        category: "MUEBLES DE DORMITORIO",
+        subCategory: "Cabeceras",
+        price: 1499,
+        originalPrice: 2999,
+        discount: 50,
+        badge: "OFERTA",
+        rating: 4.9,
+        reviewsCount: 28,
+        images: [
+          "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Gris Grafito", class: "bg-zinc-700" },
+          { name: "Beige Champagne", class: "bg-amber-100" },
+          { name: "Negro Azabache", class: "bg-zinc-900" }
+        ],
+        sizes: ["1.5 Plazas", "2 Plazas", "Queen", "King"],
+        brand: "Oslo Luxury",
+        stock: 8,
+        description: "Cabecera tapizada en terciopelo italiano ultra suave con detalle de costuras verticales artesanales. Estructura de pino machihembrado con espuma alta densidad.",
+        dimensions: "180 cm ancho x 135 cm alto x 12 cm profundidad",
+        material: "Terciopelo Premium y Madera de Pino Tratada",
+        warranty: "5 Años de Garantía de Estructura"
+      },
+      {
+        id: 2,
+        name: "Velador Ferrara",
+        category: "MUEBLES DE DORMITORIO",
+        subCategory: "Veladores",
+        price: 309,
+        originalPrice: 399,
+        discount: 23,
+        badge: "MÁS VENDIDO",
+        rating: 4.8,
+        reviewsCount: 42,
+        images: [
+          "https://images.unsplash.com/photo-1532372576444-dda954194ad0?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Nogal Dorado", class: "bg-amber-800" },
+          { name: "Negro Mate", class: "bg-zinc-900" }
+        ],
+        sizes: ["Estándar"],
+        brand: "JYH Design",
+        stock: 12,
+        description: "Velador minimalista con acabado mate, rieles telescópicos con cierre suave y acento de tirador en dorado pulido.",
+        dimensions: "50 cm ancho x 55 cm alto x 40 cm profundidad",
+        material: "MDF Roble de alta densidad y Acero Dorado",
+        warranty: "2 Años"
+      },
+      {
+        id: 3,
+        name: "Cabecera Issey Tela",
+        category: "MUEBLES DE DORMITORIO",
+        subCategory: "Cabeceras",
+        price: 439,
+        originalPrice: 949,
+        discount: 54,
+        badge: "OFERTA",
+        rating: 4.7,
+        reviewsCount: 19,
+        images: [
+          "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Lino Gris", class: "bg-zinc-400" },
+          { name: "Crema Royale", class: "bg-stone-200" }
+        ],
+        sizes: ["2 Plazas", "Queen"],
+        brand: "Issey Home",
+        stock: 5,
+        description: "Cabecera contemporánea acolchada en tejido antimancha de lino sintético. Diseño atemporal para dormitorios modernos.",
+        dimensions: "160 cm ancho x 120 cm alto x 8 cm profundidad",
+        material: "Lino Texturizado Antimanquis",
+        warranty: "3 Años"
+      },
+      {
+        id: 4,
+        name: "Velador Issey",
+        category: "MUEBLES DE DORMITORIO",
+        subCategory: "Veladores",
+        price: 459,
+        originalPrice: 799,
+        discount: 43,
+        badge: "NUEVO",
+        rating: 4.9,
+        reviewsCount: 15,
+        images: [
+          "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1532372576444-dda954194ad0?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Ciliegio Oscuro", class: "bg-amber-950" },
+          { name: "Blanco Nórdico", class: "bg-zinc-100" }
+        ],
+        sizes: ["Estándar"],
+        brand: "Issey Home",
+        stock: 3,
+        description: "Mesa de noche con 2 cajones amplios, base elevada con patas de madera maciza y acabado aterciopelado.",
+        dimensions: "48 cm ancho x 52 cm alto x 42 cm profundidad",
+        material: "Madera de Cerezos y Enchapado Natural",
+        warranty: "3 Años"
+      },
+      {
+        id: 5,
+        name: "Cama Cuna Multifuncional Imperial",
+        category: "CAMAS Y COLCHONES",
+        subCategory: "Camas",
+        price: 2199,
+        originalPrice: 3299,
+        discount: 33,
+        badge: "ÚLTIMAS UNIDADES",
+        rating: 5.0,
+        reviewsCount: 31,
+        images: [
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1582582621959-48d273528922?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Blanco Satinado", class: "bg-stone-100" },
+          { name: "Gris Perla", class: "bg-zinc-300" }
+        ],
+        sizes: ["1.5 Plazas Transformable"],
+        brand: "JYH Kids & Home",
+        stock: 2,
+        description: "Cama Cuna evolutiva convertible en cama de 1.5 plazas con 2 veladores independientes. Acompaña el crecimiento con máxima seguridad y elegancia.",
+        dimensions: "200 cm largo x 105 cm ancho x 110 cm alto",
+        material: "Madera Cedro de Roble con Pintura Atóxica",
+        warranty: "5 Años"
+      },
+      {
+        id: 6,
+        name: "Colchón Ergonómico Royal Comfort King",
+        category: "CAMAS Y COLCHONES",
+        subCategory: "Colchones",
+        price: 2899,
+        originalPrice: 4500,
+        discount: 35,
+        badge: "RECOMENDADO",
+        rating: 4.9,
+        reviewsCount: 67,
+        images: [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Blanco/Dorado Royal", class: "bg-amber-100" }
+        ],
+        sizes: ["King"],
+        brand: "Royal Sleep Systems",
+        stock: 10,
+        description: "Sistema de resortes pocket embolsados independientemente con Pillow Top Gel Infused Memory Foam. Ortocéntrico para descanso sin interrupciones.",
+        dimensions: "200 cm x 200 cm x 38 cm alto",
+        material: "Tejido Punto Jacquard Hilos de Seda y Gel Viscoelástico",
+        warranty: "10 Años de Garantía"
+      },
+      {
+        id: 7,
+        name: "Cómoda 6 Cajones Milano Dorado",
+        category: "MUEBLES DE DORMITORIO",
+        subCategory: "Cómodas",
+        price: 1299,
+        originalPrice: 1899,
+        discount: 31,
+        badge: "OFERTA",
+        rating: 4.8,
+        reviewsCount: 14,
+        images: [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1532372576444-dda954194ad0?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Negro Obsidiana", class: "bg-zinc-900" },
+          { name: "Nieve Mate", class: "bg-white" }
+        ],
+        sizes: ["XL Grand"],
+        brand: "Milano Design",
+        stock: 6,
+        description: "Cómoda de almacenamiento superior con cajones amplios y marco decorativo en tono oro cepillado.",
+        dimensions: "140 cm ancho x 85 cm alto x 45 cm profundidad",
+        material: "Madera Industrializada clase E1 e Inserciones de latón dorado",
+        warranty: "3 Años"
+      },
+      {
+        id: 8,
+        name: "Mesa de Centro Mármol y Oro Velvet",
+        category: "SALA",
+        subCategory: "Mesas de Centro",
+        price: 899,
+        originalPrice: 1200,
+        discount: 25,
+        badge: "NUEVO",
+        rating: 4.7,
+        reviewsCount: 22,
+        images: [
+          "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"
+        ],
+        colors: [
+          { name: "Mármol Blanco/Oro", class: "bg-stone-200" },
+          { name: "Mármol Negro/Oro", class: "bg-zinc-900" }
+        ],
+        sizes: ["Doble Circular"],
+        brand: "JYH Luxury Living",
+        stock: 9,
+        description: "Set de dos mesas auxiliares nido con tope de mármol sinterizado resistente a rayaduras y base metálica galvanizada en oro.",
+        dimensions: "Mesa grande: 80cm diá x 45cm / Chica: 60cm diá x 40cm",
+        material: "Mármol Sinterizado 12mm y Estructura Inoxidable",
+        warranty: "2 Años"
+      }
+    ];
+
+    const CATEGORIES = [
+      "TODOS",
+      "CAMAS Y COLCHONES",
+      "MUEBLES DE DORMITORIO",
+      "SALA",
+      "COMEDOR",
+      "ROPA DE CAMA",
+      "DECORACIÓN",
+      "OFERTAS"
+    ];
+
+    function ProductCard({ product, viewMode = 'grid', onSelect, onAddToCart, isWishlisted, onToggleWishlist }) {
+      if (viewMode === 'list') {
+        return (
+          <div className="bg-zinc-900/60 border border-zinc-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 transition group">
+            <div className="relative w-full sm:w-48 h-48 rounded-xl overflow-hidden shrink-0 bg-zinc-950 cursor-pointer" onClick={onSelect}>
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+              {product.badge && (
+                <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                  {product.badge}
+                </span>
+              )}
+            </div>
+            <div className="flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] text-amber-400 font-bold tracking-wider uppercase">{product.category}</span>
+                    <h3 onClick={onSelect} className="text-lg font-bold text-white hover:text-amber-300 cursor-pointer transition">{product.name}</h3>
+                  </div>
+                  <button onClick={onToggleWishlist} className="p-2 text-zinc-400 hover:text-red-500 transition">
+                    <Heart className={`w-5 h-5 ${isWishlisted ? 'text-red-500 fill-red-500' : ''}`} />
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-400 mt-2 line-clamp-2">{product.description}</p>
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-800">
+                <div>
+                  <span className="text-xl font-extrabold text-amber-400">S/ {product.price.toLocaleString('es-PE')}</span>
+                  {product.originalPrice && (
+                    <span className="text-xs text-zinc-500 line-through ml-2">S/ {product.originalPrice.toLocaleString('es-PE')}</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={onSelect} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold rounded-xl text-zinc-200 transition">
+                    Ver Detalle
+                  </button>
+                  <button onClick={onAddToCart} className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-xs font-extrabold rounded-xl text-zinc-950 transition flex items-center gap-1">
+                    <ShoppingBag className="w-4 h-4" /> Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="bg-zinc-900/40 border border-zinc-800/80 hover:border-amber-500/60 rounded-2xl p-3 flex flex-col justify-between transition duration-300 group hover:shadow-xl hover:shadow-amber-500/5">
+          <div>
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-950 mb-3 cursor-pointer" onClick={onSelect}>
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+              {product.badge && (
+                <span className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                  {product.badge}
+                </span>
+              )}
+              <button 
+                onClick={(e) => { e.stopPropagation(); onToggleWishlist(); }}
+                className="absolute top-2.5 right-2.5 p-2 rounded-full bg-zinc-950/60 backdrop-blur-md text-zinc-300 hover:text-red-500 transition"
+              >
+                <Heart className={`w-4 h-4 ${isWishlisted ? 'text-red-500 fill-red-500' : ''}`} />
+              </button>
+            </div>
+            <span className="text-[10px] font-bold text-amber-400 tracking-wider uppercase block">{product.category}</span>
+            <h3 onClick={onSelect} className="text-sm font-bold text-white hover:text-amber-300 cursor-pointer transition line-clamp-1 mt-0.5">
+              {product.name}
+            </h3>
+            <div className="flex items-center gap-1 text-amber-400 text-[11px] mt-1">
+              <Star className="w-3 h-3 fill-amber-400" />
+              <span className="font-bold">{product.rating}</span>
+              <span className="text-zinc-500 text-[10px]">({product.reviewsCount})</span>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-zinc-800/60 flex items-center justify-between">
+            <div>
+              <p className="text-base font-extrabold text-amber-400">S/ {product.price.toLocaleString('es-PE')}</p>
+              {product.originalPrice && (
+                <p className="text-[10px] text-zinc-500 line-through">S/ {product.originalPrice.toLocaleString('es-PE')}</p>
+              )}
+            </div>
+            <button 
+              onClick={onAddToCart}
+              className="p-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-xl transition shadow-md shadow-amber-500/20"
+              title="Agregar al Carrito"
+            >
+              <ShoppingBag className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function ProductDetailPage({ product, onAddToCart, onDirectBuyWhatsApp, isWishlisted, onToggleWishlist, onSelectRelated, onBack }) {
+      const [selectedImg, setSelectedImg] = useState(0);
+      const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || '');
+      const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
+      const [quantity, setQuantity] = useState(1);
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          
+          <button 
+            onClick={onBack}
+            className="text-xs font-semibold text-zinc-400 hover:text-amber-400 flex items-center gap-1 mb-6"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" /> Volver al Catálogo
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            
+            <div className="space-y-4">
+              <div className="aspect-square bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 relative">
+                <img 
+                  src={product.images[selectedImg] || product.images[0]} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                />
+                {product.badge && (
+                  <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    {product.badge}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                {product.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedImg(idx)}
+                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition ${
+                      selectedImg === idx ? 'border-amber-400 scale-105' : 'border-zinc-800 opacity-60'
+                    }`}
+                  >
+                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">{product.category}</span>
+                <h1 className="text-3xl font-extrabold text-white mt-1">{product.name}</h1>
+                <p className="text-xs text-zinc-400 mt-1">Marca: <span className="text-white font-semibold">{product.brand}</span></p>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-zinc-200">{product.rating}</span>
+                  <span className="text-xs text-zinc-500">({product.reviewsCount} evaluaciones de clientes)</span>
+                </div>
+              </div>
+
+              <div className="p-4 bg-zinc-900/60 rounded-xl border border-zinc-800 flex items-baseline gap-4">
+                <span className="text-3xl font-extrabold text-amber-400">
+                  S/ {product.price.toLocaleString('es-PE')}
+                </span>
+                {product.originalPrice && (
+                  <span className="text-sm text-zinc-500 line-through">
+                    S/ {product.originalPrice.toLocaleString('es-PE')}
+                  </span>
+                )}
+                {product.discount && (
+                  <span className="bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    Ahorras {product.discount}%
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-300 leading-relaxed">{product.description}</p>
+
+              {product.colors && product.colors.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase mb-2">
+                    Color Seleccionado: <span className="text-amber-400">{selectedColor}</span>
+                  </label>
+                  <div className="flex gap-2">
+                    {product.colors.map(color => (
+                      <button
+                        key={color.name}
+                        onClick={() => setSelectedColor(color.name)}
+                        className={`px-3 py-2 text-xs font-medium rounded-lg border flex items-center gap-2 transition ${
+                          selectedColor === color.name ? 'border-amber-400 bg-amber-500/10 text-white' : 'border-zinc-800 text-zinc-400'
+                        }`}
+                      >
+                        <span className={`w-3 h-3 rounded-full ${color.class}`}></span>
+                        <span>{color.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {product.sizes && product.sizes.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase mb-2">
+                    Medida / Dimensión: <span className="text-amber-400">{selectedSize}</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map(size => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`px-4 py-2 text-xs font-semibold rounded-lg border transition ${
+                          selectedSize === size ? 'border-amber-400 bg-amber-500 text-zinc-950 font-bold' : 'border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 pt-4 border-t border-zinc-800">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border border-zinc-700 rounded-xl bg-zinc-900 p-1">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2 text-zinc-400 hover:text-white">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="px-4 font-bold text-white text-sm">{quantity}</span>
+                    <button onClick={() => setQuantity(quantity + 1)} className="p-2 text-zinc-400 hover:text-white">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <button 
+                    onClick={() => onAddToCart(product, quantity, selectedColor, selectedSize)}
+                    className="flex-1 py-4 bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 font-bold rounded-xl transition flex items-center justify-center gap-2 uppercase text-xs"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    <span>Agregar al Carrito</span>
+                  </button>
+
+                  <button 
+                    onClick={onToggleWishlist}
+                    className="p-4 bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-red-500 rounded-xl"
+                  >
+                    <Heart className={`w-5 h-5 ${isWishlisted ? 'text-red-500 fill-red-500' : ''}`} />
+                  </button>
+                </div>
+
+                <button 
+                  onClick={() => onDirectBuyWhatsApp(product, quantity, selectedColor, selectedSize)}
+                  className="w-full py-4 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-600 text-zinc-950 font-extrabold rounded-xl shadow-xl shadow-emerald-500/20 hover:brightness-110 transition flex items-center justify-center gap-2 uppercase tracking-wider text-xs"
+                >
+                  <MessageCircle className="w-5 h-5 fill-zinc-950" />
+                  <span>COMPRAR DIRECTO POR WHATSAPP</span>
+                </button>
+              </div>
+
+              <div className="space-y-3 pt-6 border-t border-zinc-800 text-xs text-zinc-400">
+                <div className="flex items-center gap-3">
+                  <Truck className="w-5 h-5 text-amber-400" />
+                  <span>Despacho a domicilio en Lima en 48 hrs o retiro gratuito en Tienda Surco.</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-amber-400" />
+                  <span>Garantía: {product.warranty}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-12 border-t border-zinc-800">
+            <h3 className="text-xl font-extrabold text-white mb-6">Productos Relacionados Recomendados</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {PRODUCTS_DATA.filter(p => p.id !== product.id).slice(0, 4).map(rel => (
+                <div 
+                  key={rel.id} 
+                  onClick={() => onSelectRelated(rel.id)}
+                  className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-amber-500/50"
+                >
+                  <img src={rel.images[0]} alt={rel.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+                  <h4 className="text-xs font-bold text-white line-clamp-1">{rel.name}</h4>
+                  <p className="text-xs font-extrabold text-amber-400 mt-1">S/ {rel.price.toLocaleString('es-PE')}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [currentView, setCurrentView] = useState('home');
+      const [selectedProductId, setSelectedProductId] = useState(1);
+      const [selectedCategory, setSelectedCategory] = useState('TODOS');
+      
+      const [searchTerm, setSearchTerm] = useState('');
+      const [sortBy, setSortBy] = useState('relevance');
+      const [viewMode, setViewMode] = useState('grid');
+      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+      const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+      
+      const [priceRange, setPriceRange] = useState(4000);
+      const [selectedBrands, setSelectedBrands] = useState([]);
+      const [selectedDiscountOnly, setSelectedDiscountOnly] = useState(false);
+
+      const [cart, setCart] = useState(() => {
+        try {
+          const saved = localStorage.getItem('jyh_cart');
+          return saved ? JSON.parse(saved) : [
+            { product: PRODUCTS_DATA[0], quantity: 1, selectedColor: PRODUCTS_DATA[0].colors[0].name, selectedSize: "Queen" }
+          ];
+        } catch {
+          return [];
+        }
+      });
+
+      const [wishlist, setWishlist] = useState(() => {
+        try {
+          const saved = localStorage.getItem('jyh_wishlist');
+          return saved ? JSON.parse(saved) : [2, 6];
+        } catch {
+          return [];
+        }
+      });
+
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [toastMessage, setToastMessage] = useState(null);
+
+      useEffect(() => {
+        localStorage.setItem('jyh_cart', JSON.stringify(cart));
+      }, [cart]);
+
+      useEffect(() => {
+        localStorage.setItem('jyh_wishlist', JSON.stringify(wishlist));
+      }, [wishlist]);
+
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => {
+          setToastMessage(null);
+        }, 3000);
+      };
+
+      const cartSubtotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
+      const cartTotalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      const freeShippingThreshold = 2500;
+      const progressToFreeShipping = Math.min((cartSubtotal / freeShippingThreshold) * 100, 100);
+
+      const handleCheckoutWhatsApp = () => {
+        if (cart.length === 0) {
+          showToast("Tu carrito está vacío. Agrega productos para realizar tu pedido.");
+          return;
+        }
+
+        const PHONE_NUMBER = "51927595481";
+        let message = "¡Hola JYH HOGAR! 👋\nHe visto estos hermosos productos en venta y deseo adquirirlos:\n\n";
+
+        cart.forEach((item, index) => {
+          const itemSubtotal = item.product.price * item.quantity;
+          message += `${index + 1}. *${item.product.name}*\n`;
+          message += `   • Cantidad: ${item.quantity}\n`;
+          if (item.selectedColor) message += `   • Color: ${item.selectedColor}\n`;
+          if (item.selectedSize) message += `   • Medida: ${item.selectedSize}\n`;
+          message += `   • Precio: S/ ${item.product.price.toLocaleString('es-PE')} c/u\n`;
+          message += `   • Subtotal: S/ ${itemSubtotal.toLocaleString('es-PE')}\n\n`;
+        });
+
+        const isFreeShipping = cartSubtotal >= freeShippingThreshold;
+        const shippingCost = isFreeShipping ? 0 : 80;
+        const grandTotal = cartSubtotal + shippingCost;
+
+        message += `🚚 *Costo de Envío:* ${isFreeShipping ? '¡GRATIS!' : 'S/ 80.00'}\n`;
+        message += `💰 *MONTO TOTAL:* S/ ${grandTotal.toLocaleString('es-PE')}\n\n`;
+        message += "Quedo atento(a) a sus indicaciones para coordinar el pago y la entrega. ¡Muchas gracias!";
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodedMessage}`;
+        
+        showToast("¡Redirigiendo a WhatsApp de JYH HOGAR!");
+        window.open(whatsappUrl, '_blank');
+      };
+
+      const openDirectWhatsApp = (customText) => {
+        const PHONE_NUMBER = "51927595481";
+        const defaultText = customText || "¡Hola JYH HOGAR! Deseo consultar sobre la disponibilidad y catálogo de muebles de dormitorio de lujo.";
+        const encodedMessage = encodeURIComponent(defaultText);
+        window.open(`https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodedMessage}`, '_blank');
+      };
+
+      const addToCart = (product, quantity = 1, color = null, size = null) => {
+        const chosenColor = color || (product.colors && product.colors[0]?.name) || "Estándar";
+        const chosenSize = size || (product.sizes && product.sizes[0]) || "Estándar";
+
+        setCart(prevCart => {
+          const existingIndex = prevCart.findIndex(
+            item => item.product.id === product.id && item.selectedColor === chosenColor && item.selectedSize === chosenSize
+          );
+
+          if (existingIndex > -1) {
+            const updated = [...prevCart];
+            updated[existingIndex].quantity += quantity;
+            return updated;
+          } else {
+            return [...prevCart, { product, quantity, selectedColor: chosenColor, selectedSize: chosenSize }];
+          }
+        });
+
+        showToast(`¡${product.name} agregado al carrito!`);
+        setIsCartOpen(true);
+      };
+
+      const removeFromCart = (index) => {
+        setCart(prev => prev.filter((_, i) => i !== index));
+        showToast("Producto eliminado del carrito.");
+      };
+
+      const updateQuantity = (index, delta) => {
+        setCart(prev => {
+          const updated = [...prev];
+          const newQty = updated[index].quantity + delta;
+          if (newQty > 0) {
+            updated[index].quantity = newQty;
+          }
+          return updated;
+        });
+      };
+
+      const toggleWishlist = (productId) => {
+        setWishlist(prev => {
+          const exists = prev.includes(productId);
+          if (exists) {
+            showToast("Eliminado de favoritos");
+            return prev.filter(id => id !== productId);
+          } else {
+            showToast("Guardado en favoritos");
+            return [...prev, productId];
+          }
+        });
+      };
+
+      const filteredProducts = useMemo(() => {
+        return PRODUCTS_DATA.filter(item => {
+          if (selectedCategory === "OFERTA" || selectedCategory === "OFERTAS") {
+            if (!item.discount) return false;
+          } else if (selectedCategory !== "TODOS" && item.category !== selectedCategory) {
+            return false;
+          }
+
+          if (searchTerm.trim() !== "") {
+            const matchName = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchCat = item.category.toLowerCase().includes(searchTerm.toLowerCase());
+            if (!matchName && !matchCat) return false;
+          }
+
+          if (item.price > priceRange) return false;
+          if (selectedDiscountOnly && !item.discount) return false;
+          if (selectedBrands.length > 0 && !selectedBrands.includes(item.brand)) return false;
+
+          return true;
+        }).sort((a, b) => {
+          if (sortBy === 'price-low') return a.price - b.price;
+          if (sortBy === 'price-high') return b.price - a.price;
+          if (sortBy === 'discount') return (b.discount || 0) - (a.discount || 0);
+          if (sortBy === 'rating') return b.rating - a.rating;
+          return a.id - b.id;
+        });
+      }, [selectedCategory, searchTerm, priceRange, selectedDiscountOnly, selectedBrands, sortBy]);
+
+      const selectedProductDetail = PRODUCTS_DATA.find(p => p.id === selectedProductId) || PRODUCTS_DATA[0];
+
+      const navigateToDetail = (id) => {
+        setSelectedProductId(id);
+        setCurrentView('detail');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      return (
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500 selection:text-black relative">
+          
+          {toastMessage && (
+            <div className="fixed bottom-6 right-6 z-50 bg-amber-500 text-zinc-950 px-5 py-3 rounded-xl shadow-2xl font-bold flex items-center gap-3 animate-bounce border border-amber-300">
+              <Sparkles className="w-5 h-5 text-black" />
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          <button 
+            onClick={() => openDirectWhatsApp("¡Hola! He visto su página de JYH HOGAR y deseo información de asesoría para comprar muebles y colchones.")}
+            className="fixed bottom-6 left-6 z-50 bg-emerald-500 hover:bg-emerald-400 text-white p-3.5 rounded-full shadow-2xl shadow-emerald-500/40 border border-emerald-300 transition-all transform hover:scale-110 flex items-center gap-2 group"
+            title="Consultar por WhatsApp"
+          >
+            <MessageCircle className="w-7 h-7 fill-white text-emerald-500" />
+            <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap text-xs font-extrabold pr-1">
+              WhatsApp 927 595 481
+            </span>
+          </button>
+
+          <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 text-zinc-950 text-xs font-bold py-2 px-4 text-center tracking-widest uppercase flex items-center justify-center gap-3 shadow-md">
+            <span>✨ ENVÍOS GRATIS A TODO EL PERÚ POR COMPRAS MAYORES A S/ 2,500</span>
+            <span className="hidden md:inline">|</span>
+            <span className="hidden md:inline">🔥 CONSULTAS DIRECTAS AL WHATSAPP 927 595 481</span>
+          </div>
+
+          <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+              
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="p-2 lg:hidden text-zinc-400 hover:text-white"
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+
+                <button 
+                  onClick={() => { setCurrentView('home'); setSelectedCategory('TODOS'); }} 
+                  className="flex items-baseline text-left group"
+                >
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 group-hover:opacity-90 transition">
+                    JYH HOGAR
+                  </span>
+                  <span className="text-[10px] text-amber-500 font-mono tracking-tighter ml-1.5 uppercase hidden sm:inline">
+                    LUXURY HOME
+                  </span>
+                </button>
+              </div>
+
+              <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold tracking-wider">
+                {CATEGORIES.slice(1).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setCurrentView('catalog');
+                    }}
+                    className={`transition-all py-1 border-b-2 ${
+                      selectedCategory === cat && currentView === 'catalog'
+                        ? 'border-amber-400 text-amber-400 font-bold'
+                        : 'border-transparent text-zinc-300 hover:text-amber-300 hover:border-amber-500/40'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="relative hidden md:block w-48 lg:w-60">
+                  <input 
+                    type="text"
+                    placeholder="Buscar cama, sofa..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      if (currentView !== 'catalog') setCurrentView('catalog');
+                    }}
+                    className="w-full bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-100 rounded-full py-2 pl-9 pr-4 focus:outline-none focus:border-amber-500/70 transition"
+                  />
+                  <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+                </div>
+
+                <button 
+                  onClick={() => setCurrentView('wishlist')}
+                  className="relative p-2 text-zinc-300 hover:text-amber-400 transition"
+                  title="Favoritos"
+                >
+                  <Heart className={`w-6 h-6 ${wishlist.length > 0 ? 'text-red-500 fill-red-500/20' : ''}`} />
+                  {wishlist.length > 0 && (
+                    <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </button>
+
+                <button 
+                  onClick={() => showToast("Inicia sesión para ver tu historial de compras")}
+                  className="p-2 text-zinc-300 hover:text-amber-400 transition hidden sm:block"
+                  title="Mi Cuenta"
+                >
+                  <User className="w-6 h-6" />
+                </button>
+
+                <button 
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative p-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 font-bold rounded-full hover:brightness-110 transition flex items-center justify-center shadow-lg shadow-amber-500/20"
+                  title="Carrito"
+                >
+                  <ShoppingBag className="w-5 h-5 text-zinc-950" />
+                  {cartTotalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[11px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-zinc-950">
+                      {cartTotalItems}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/60 border-t border-zinc-800/80 overflow-x-auto no-scrollbar py-2 px-4">
+              <div className="max-w-7xl mx-auto flex items-center gap-6 text-xs whitespace-nowrap text-zinc-400 font-medium">
+                <span className="text-amber-500 font-bold flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" /> COLECCIONES EXCLUSIVAS:
+                </span>
+                <button onClick={() => { setSelectedCategory("CAMAS Y COLCHONES"); setCurrentView('catalog'); }} className="hover:text-amber-300">Juegos de Cama Royal</button>
+                <span>•</span>
+                <button onClick={() => { setSelectedCategory("MUEBLES DE DORMITORIO"); setCurrentView('catalog'); }} className="hover:text-amber-300">Veladores Finos</button>
+                <span>•</span>
+                <button onClick={() => { setSelectedCategory("SALA"); setCurrentView('catalog'); }} className="hover:text-amber-300">Sofás Velvet Capitoné</button>
+                <span>•</span>
+                <button onClick={() => { setSelectedCategory("COMEDOR"); setCurrentView('catalog'); }} className="hover:text-amber-300">Comedores 6 y 8 Sillas</button>
+                <span>•</span>
+                <button onClick={() => { setSelectedCategory("OFERTAS"); setCurrentView('catalog'); }} className="text-red-400 font-bold hover:text-red-300">Venta Nocturna hasta -50%</button>
+              </div>
+            </div>
+          </header>
+
+          {mobileMenuOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex">
+              <div className="w-4/5 max-w-sm bg-zinc-950 h-full p-6 flex flex-col justify-between border-r border-amber-500/30">
+                <div>
+                  <div className="flex items-center justify-between pb-6 border-b border-zinc-800">
+                    <span className="text-xl font-bold text-amber-400">JYH HOGAR</span>
+                    <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-400 hover:text-white">
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="mt-4 mb-6">
+                    <div className="relative">
+                      <input 
+                        type="text"
+                        placeholder="Buscar producto..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 rounded-xl py-2.5 pl-9 pr-4"
+                      />
+                      <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      onClick={() => { setCurrentView('home'); setMobileMenuOpen(false); }}
+                      className="flex items-center justify-between text-left py-3 px-3 rounded-lg hover:bg-zinc-900 text-zinc-200 font-semibold"
+                    >
+                      <span className="flex items-center gap-2"><HomeIcon className="w-4 h-4 text-amber-400" /> INICIO</span>
+                    </button>
+                    {CATEGORIES.slice(1).map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setSelectedCategory(cat);
+                          setCurrentView('catalog');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center justify-between text-left py-2.5 px-3 rounded-lg hover:bg-zinc-900 text-zinc-300 text-sm"
+                      >
+                        <span>{cat}</span>
+                        <ChevronRight className="w-4 h-4 text-zinc-600" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-zinc-800 text-xs text-zinc-500">
+                  <p>Atención al Cliente: +51 927 595 481</p>
+                  <p className="mt-1">Lima, Perú • Envíos a todo el país</p>
+                </div>
+              </div>
+              <div className="flex-1" onClick={() => setMobileMenuOpen(false)}></div>
+            </div>
+          )}
+
+          <main>
+            {currentView === 'home' && (
+              <div>
+                <section className="relative bg-zinc-900 py-20 md:py-32 overflow-hidden border-b border-zinc-800">
+                  <div className="absolute inset-0 z-0">
+                    <img 
+                      src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80" 
+                      alt="Dormitorio de Lujo JYH"
+                      className="w-full h-full object-cover opacity-35 scale-105 transition-transform duration-1000"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
+                  </div>
+
+                  <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
+                    <span className="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs tracking-widest font-bold py-1.5 px-4 rounded-full mb-4 uppercase">
+                      Colección Elegancia & Confort 2026
+                    </span>
+                    <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                      Transforma Tu Dormitorio en un <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500">Santuario de Lujo</span>
+                    </h1>
+                    <p className="text-zinc-300 text-base sm:text-lg max-w-2xl mx-auto mb-8 font-light">
+                      Muebles, cabeceras, veladores y colchones ergonómicos diseñados con la más alta ebanistería y confort de clase mundial.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <button 
+                        onClick={() => { setSelectedCategory('TODOS'); setCurrentView('catalog'); }}
+                        className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-zinc-950 font-extrabold rounded-xl shadow-xl shadow-amber-500/20 hover:scale-105 transition flex items-center justify-center gap-2"
+                      >
+                        <span>EXPLORAR CATÁLOGO COMPLETO</span>
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => { setSelectedCategory('OFERTAS'); setCurrentView('catalog'); }}
+                        className="w-full sm:w-auto px-8 py-4 bg-zinc-900/90 border border-amber-500/40 text-amber-300 font-bold rounded-xl hover:bg-amber-500/10 transition"
+                      >
+                        VER OFERTAS ESPECIALES
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20 mb-20">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { title: "Dormitorio de Lujo", img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=500&q=80", cat: "MUEBLES DE DORMITORIO" },
+                      { title: "Camas & Colchones", img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=500&q=80", cat: "CAMAS Y COLCHONES" },
+                      { title: "Salas Modernas", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80", cat: "SALA" },
+                      { title: "Comedores Elegantes", img: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=500&q=80", cat: "COMEDOR" },
+                    ].map((item, idx) => (
+                      <div 
+                        key={idx}
+                        onClick={() => { setSelectedCategory(item.cat); setCurrentView('catalog'); }}
+                        className="group relative h-48 sm:h-60 rounded-2xl overflow-hidden border border-zinc-800 hover:border-amber-500/60 cursor-pointer shadow-xl transition-all duration-300"
+                      >
+                        <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-70 group-hover:opacity-90" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider">Categoría</p>
+                          <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition">{item.title}</h3>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mb-16">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-zinc-800 pb-4">
+                    <div>
+                      <span className="text-amber-500 text-xs font-bold uppercase tracking-widest">Lo más exclusivo</span>
+                      <h2 className="text-3xl font-extrabold text-white mt-1">Productos en Tendencia</h2>
+                    </div>
+                    <button 
+                      onClick={() => { setSelectedCategory('TODOS'); setCurrentView('catalog'); }}
+                      className="text-amber-400 hover:text-amber-300 text-sm font-semibold flex items-center gap-1 mt-2 md:mt-0"
+                    >
+                      Ver Todo el Catálogo <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {PRODUCTS_DATA.slice(0, 4).map(product => (
+                      <ProductCard 
+                        key={product.id} 
+                        product={product} 
+                        onSelect={() => navigateToDetail(product.id)}
+                        onAddToCart={() => addToCart(product)}
+                        isWishlisted={wishlist.includes(product.id)}
+                        onToggleWishlist={() => toggleWishlist(product.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
+
+                <section className="bg-zinc-900/50 border-y border-zinc-800/80 py-12">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                    <div className="p-4 flex flex-col items-center">
+                      <Truck className="w-10 h-10 text-amber-400 mb-3" />
+                      <h4 className="text-lg font-bold text-white mb-1">Envíos a Todo el Perú</h4>
+                      <p className="text-xs text-zinc-400">Entrega rápida y segura con rastreo en vivo hasta la puerta de tu hogar.</p>
+                    </div>
+                    <div className="p-4 flex flex-col items-center">
+                      <ShieldCheck className="w-10 h-10 text-amber-400 mb-3" />
+                      <h4 className="text-lg font-bold text-white mb-1">Garantía Extendida</h4>
+                      <p className="text-xs text-zinc-400">Hasta 10 años de respaldo en estructuras de madera y colchones.</p>
+                    </div>
+                    <div className="p-4 flex flex-col items-center">
+                      <Award className="w-10 h-10 text-amber-400 mb-3" />
+                      <h4 className="text-lg font-bold text-white mb-1">Calidad Premium</h4>
+                      <p className="text-xs text-zinc-400">Materiales seleccionados: madera tratada, terciopelo e hilo egipcio.</p>
+                    </div>
+                    <div className="p-4 flex flex-col items-center">
+                      <Clock className="w-10 h-10 text-amber-400 mb-3" />
+                      <h4 className="text-lg font-bold text-white mb-1">Atención Personalizada</h4>
+                      <p className="text-xs text-zinc-400">Asesores de interiorismo disponibles vía WhatsApp 24/7.</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {currentView === 'catalog' && (
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex items-center gap-2 text-xs text-zinc-400 mb-6">
+                  <button onClick={() => setCurrentView('home')} className="hover:text-amber-400">Inicio</button>
+                  <ChevronRight className="w-3 h-3 text-zinc-600" />
+                  <span className="text-amber-400 font-semibold">{selectedCategory}</span>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-zinc-800 mb-8">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+                      {selectedCategory === 'TODOS' ? 'Catálogo General de Muebles' : selectedCategory}
+                    </h1>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Mostrando <span className="text-amber-400 font-bold">{filteredProducts.length}</span> productos encontrados
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button 
+                      onClick={() => setMobileFilterOpen(true)}
+                      className="lg:hidden px-4 py-2 bg-zinc-900 border border-zinc-700 text-xs font-semibold rounded-lg flex items-center gap-2 text-zinc-200"
+                    >
+                      <Filter className="w-4 h-4 text-amber-400" />
+                      <span>Filtros</span>
+                    </button>
+
+                    <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs">
+                      <span className="text-zinc-400 font-medium">Ordenar:</span>
+                      <select 
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
+                      >
+                        <option value="relevance" className="bg-zinc-900">Relevancia</option>
+                        <option value="price-low" className="bg-zinc-900">Precio: Menor a Mayor</option>
+                        <option value="price-high" className="bg-zinc-900">Precio: Mayor a Menor</option>
+                        <option value="discount" className="bg-zinc-900">Mayor Descuento</option>
+                        <option value="rating" className="bg-zinc-900">Mejor Valorados</option>
+                      </select>
+                    </div>
+
+                    <div className="hidden sm:flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+                      <button 
+                        onClick={() => setViewMode('grid')} 
+                        className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-amber-500 text-black' : 'text-zinc-400 hover:text-white'}`}
+                        title="Vista Cuadrícula"
+                      >
+                        <Grid className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => setViewMode('list')} 
+                        className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-amber-500 text-black' : 'text-zinc-400 hover:text-white'}`}
+                        title="Vista Lista"
+                      >
+                        <List className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-8">
+                  <aside className="hidden lg:block w-64 shrink-0 space-y-6">
+                    <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 space-y-6">
+                      <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                        <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                          <SlidersHorizontal className="w-4 h-4 text-amber-400" /> Filtros
+                        </h3>
+                        <button 
+                          onClick={() => {
+                            setSelectedCategory('TODOS');
+                            setPriceRange(4000);
+                            setSelectedBrands([]);
+                            setSelectedDiscountOnly(false);
+                            setSearchTerm('');
+                          }}
+                          className="text-[11px] text-amber-400 hover:underline"
+                        >
+                          Limpiar todo
+                        </button>
+                      </div>
+
+                      <div>
+                        <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-3">Categoría</h4>
+                        <div className="space-y-1.5 text-xs">
+                          {CATEGORIES.map(cat => (
+                            <button
+                              key={cat}
+                              onClick={() => setSelectedCategory(cat)}
+                              className={`w-full text-left py-1.5 px-2 rounded-md transition flex items-center justify-between ${
+                                selectedCategory === cat ? 'bg-amber-500/20 text-amber-300 font-bold border-l-2 border-amber-400' : 'text-zinc-400 hover:text-zinc-200'
+                              }`}
+                            >
+                              <span>{cat}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-zinc-800">
+                        <div className="flex justify-between text-xs font-bold mb-2">
+                          <span className="text-zinc-300">Precio Máximo:</span>
+                          <span className="text-amber-400">S/ {priceRange.toLocaleString('es-PE')}</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="300" 
+                          max="5000" 
+                          step="100"
+                          value={priceRange} 
+                          onChange={(e) => setPriceRange(Number(e.target.value))}
+                          className="w-full accent-amber-500 cursor-pointer"
+                        />
+                      </div>
+
+                      <div className="pt-4 border-t border-zinc-800">
+                        <label className="flex items-center gap-2 cursor-pointer text-xs text-zinc-300">
+                          <input 
+                            type="checkbox"
+                            checked={selectedDiscountOnly}
+                            onChange={(e) => setSelectedDiscountOnly(e.target.checked)}
+                            className="rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-amber-500"
+                          />
+                          <span>Solo Ofertas con Descuento</span>
+                        </label>
+                      </div>
+                    </div>
+                  </aside>
+
+                  <div className="flex-1">
+                    {filteredProducts.length === 0 ? (
+                      <div className="text-center py-16 bg-zinc-900/30 rounded-2xl border border-zinc-800">
+                        <p className="text-lg text-zinc-300 font-semibold mb-2">No encontramos productos que coincidan con tus filtros.</p>
+                        <p className="text-xs text-zinc-500 mb-6">Intenta ajustar tu búsqueda o el rango de precio.</p>
+                        <button 
+                          onClick={() => {
+                            setSelectedCategory('TODOS');
+                            setPriceRange(4000);
+                            setSelectedBrands([]);
+                            setSelectedDiscountOnly(false);
+                            setSearchTerm('');
+                          }}
+                          className="px-6 py-2.5 bg-amber-500 text-zinc-950 font-bold rounded-lg text-xs"
+                        >
+                          Restablecer Filtros
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={
+                        viewMode === 'grid' 
+                          ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+                          : "space-y-4"
+                      }>
+                        {filteredProducts.map(product => (
+                          <ProductCard 
+                            key={product.id} 
+                            product={product} 
+                            viewMode={viewMode}
+                            onSelect={() => navigateToDetail(product.id)}
+                            onAddToCart={() => addToCart(product)}
+                            isWishlisted={wishlist.includes(product.id)}
+                            onToggleWishlist={() => toggleWishlist(product.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === 'detail' && (
+              <ProductDetailPage 
+                product={selectedProductDetail}
+                onAddToCart={addToCart}
+                onDirectBuyWhatsApp={(prod, qty, col, sz) => {
+                  const PHONE_NUMBER = "51927595481";
+                  const total = prod.price * qty;
+                  let msg = `¡Hola JYH HOGAR! 👋\nHe visto este hermoso producto en venta y deseo adquirirlo:\n\n`;
+                  msg += `• *${prod.name}*\n`;
+                  msg += `   - Cantidad: ${qty}\n`;
+                  if (col) msg += `   - Color: ${col}\n`;
+                  if (sz) msg += `   - Medida: ${sz}\n`;
+                  msg += `   - Precio Total: S/ ${total.toLocaleString('es-PE')}\n\n`;
+                  msg += `¿Tienen stock disponible y cómo puedo coordinar el envío? ¡Muchas gracias!`;
+                  
+                  window.open(`https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+                isWishlisted={wishlist.includes(selectedProductDetail.id)}
+                onToggleWishlist={() => toggleWishlist(selectedProductDetail.id)}
+                onSelectRelated={(id) => navigateToDetail(id)}
+                onBack={() => setCurrentView('catalog')}
+              />
+            )}
+
+            {currentView === 'wishlist' && (
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-6">Mis Favoritos Guardados</h1>
+                {wishlist.length === 0 ? (
+                  <div className="text-center py-16 bg-zinc-900/30 rounded-2xl border border-zinc-800">
+                    <Heart className="w-12 h-12 mx-auto text-zinc-600 mb-3" />
+                    <p className="text-base text-zinc-300 font-semibold mb-2">No tienes productos en tu lista de favoritos.</p>
+                    <button 
+                      onClick={() => setCurrentView('catalog')} 
+                      className="mt-4 px-6 py-2.5 bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs uppercase"
+                    >
+                      Descubrir Productos
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {PRODUCTS_DATA.filter(p => wishlist.includes(p.id)).map(product => (
+                      <ProductCard 
+                        key={product.id} 
+                        product={product} 
+                        onSelect={() => navigateToDetail(product.id)}
+                        onAddToCart={() => addToCart(product)}
+                        isWishlisted={true}
+                        onToggleWishlist={() => toggleWishlist(product.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-end">
+              <div className="w-full max-w-md bg-zinc-950 h-full flex flex-col justify-between border-l border-amber-500/30 shadow-2xl">
+                
+                <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5 text-amber-400" />
+                    <h2 className="font-bold text-white text-lg">Tu Carrito de Compras</h2>
+                    <span className="text-xs text-amber-400 font-bold">({cartTotalItems})</span>
+                  </div>
+                  <button onClick={() => setIsCartOpen(false)} className="text-zinc-400 hover:text-white">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="px-6 py-3 bg-zinc-900/80 border-b border-zinc-800">
+                  <div className="flex justify-between text-xs font-semibold mb-1.5">
+                    <span className="text-zinc-300">
+                      {cartSubtotal >= freeShippingThreshold ? '🎉 ¡Felicidades! Tienes Envío Gratis' : `Faltan S/ ${(freeShippingThreshold - cartSubtotal).toLocaleString('es-PE')} para Envío Gratis`}
+                    </span>
+                  </div>
+                  <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-amber-500 to-amber-300 h-full transition-all duration-500"
+                      style={{ width: `${progressToFreeShipping}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {cart.length === 0 ? (
+                    <div className="text-center py-16 text-zinc-500">
+                      <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-zinc-700" />
+                      <p className="text-sm font-semibold">Tu carrito está completamente vacío.</p>
+                      <button 
+                        onClick={() => setIsCartOpen(false)} 
+                        className="mt-4 text-xs font-bold text-amber-400 hover:underline"
+                      >
+                        Empezar a comprar
+                      </button>
+                    </div>
+                  ) : (
+                    cart.map((item, idx) => (
+                      <div key={idx} className="flex gap-4 p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80">
+                        <img 
+                          src={item.product.images[0]} 
+                          alt={item.product.name} 
+                          className="w-20 h-20 object-cover rounded-lg bg-zinc-950"
+                        />
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="flex justify-between items-start">
+                              <h4 className="text-xs font-bold text-white line-clamp-1">{item.product.name}</h4>
+                              <button onClick={() => removeFromCart(idx)} className="text-zinc-500 hover:text-red-400 p-1">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <p className="text-[10px] text-zinc-400 mt-0.5">
+                              Color: {item.selectedColor} | Medida: {item.selectedSize}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs font-extrabold text-amber-400">
+                              S/ {(item.product.price * item.quantity).toLocaleString('es-PE')}
+                            </span>
+
+                            <div className="flex items-center border border-zinc-700 rounded-md bg-zinc-950">
+                              <button onClick={() => updateQuantity(idx, -1)} className="p-1 text-zinc-400 hover:text-white">
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="px-2 text-xs font-bold text-zinc-100">{item.quantity}</span>
+                              <button onClick={() => updateQuantity(idx, 1)} className="p-1 text-zinc-400 hover:text-white">
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {cart.length > 0 && (
+                  <div className="p-6 bg-zinc-900/90 border-t border-zinc-800 space-y-3">
+                    <div className="flex justify-between text-xs text-zinc-400">
+                      <span>Subtotal</span>
+                      <span>S/ {cartSubtotal.toLocaleString('es-PE')}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-zinc-400">
+                      <span>Envío Estimado</span>
+                      <span className="text-amber-400 font-bold">
+                        {cartSubtotal >= freeShippingThreshold ? 'GRATIS' : 'S/ 80.00'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-base font-extrabold text-white pt-2 border-t border-zinc-800">
+                      <span>Total final</span>
+                      <span className="text-amber-400">
+                        S/ {(cartSubtotal + (cartSubtotal >= freeShippingThreshold ? 0 : 80)).toLocaleString('es-PE')}
+                      </span>
+                    </div>
+
+                    <button 
+                      onClick={handleCheckoutWhatsApp}
+                      className="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-600 text-zinc-950 font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="w-5 h-5 fill-zinc-950" />
+                      <span>FINALIZAR COMPRA POR WHATSAPP</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <footer className="bg-zinc-950 border-t border-zinc-800/80 pt-16 pb-12 text-zinc-400 text-xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+              
+              <div className="md:col-span-2 space-y-4">
+                <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+                  JYH HOGAR
+                </span>
+                <p className="text-zinc-400 font-light leading-relaxed max-w-sm">
+                  Especialistas en ebanistería moderna, dormitorios de lujo, colchones ortopédicos y amoblado integral de alta gama para hogares exigentes.
+                </p>
+                <div className="flex items-center gap-3 pt-2">
+                  <button 
+                    onClick={() => openDirectWhatsApp("¡Hola! Deseo más información sobre sus muebles de lujo.")}
+                    className="w-9 h-9 rounded-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition"
+                    title="WhatsApp Directo"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </button>
+                  <a href="tel:+51927595481" className="w-9 h-9 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center hover:bg-amber-500 hover:text-black transition">
+                    <PhoneCall className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Nuestra Empresa</h4>
+                <ul className="space-y-2">
+                  <li><button onClick={() => { setCurrentView('home'); }} className="hover:text-amber-400">Inicio</button></li>
+                  <li><button onClick={() => { setSelectedCategory('TODOS'); setCurrentView('catalog'); }} className="hover:text-amber-400">Catálogo Completo</button></li>
+                  <li><button onClick={() => { setSelectedCategory('OFERTAS'); setCurrentView('catalog'); }} className="hover:text-amber-400">Ofertas Especiales</button></li>
+                  <li><button onClick={() => showToast("Visita nuestra tienda en Av. Primavera 1230, Surco")} className="hover:text-amber-400">Nuestros Showrooms</button></li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Showroom & Contacto</h4>
+                <p className="mb-2 text-zinc-300 font-medium">Av. Primavera 1230, Surco, Lima</p>
+                <p className="mb-2 font-bold text-amber-400">WhatsApp: +51 927 595 481</p>
+                <p className="text-[11px] text-zinc-500">Atención: Lun a Sáb 10am - 8pm</p>
+              </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+              <p>© 2026 JYH HOGAR Luxury Home. Todos los derechos reservados.</p>
+              <div className="flex items-center gap-4">
+                <span className="text-zinc-500">Pagos Seguros:</span>
+                <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 font-mono text-zinc-300">VISA</span>
+                <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 font-mono text-zinc-300">MASTERCARD</span>
+                <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 font-mono text-amber-400">YAPE / PLIN</span>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
